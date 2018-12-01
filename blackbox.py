@@ -235,8 +235,12 @@ def selenium_get_courses():
 
     if sys.platform == "win32":
         CHROMEDRIVER_PATH = os.getcwd()
-    else:
+    elif sys.platform == 'darwin':
         CHROMEDRIVER_PATH = os.path.dirname(sys.argv[0])
+    elif sys.platform.startswith('linux'):
+        CHROMEDRIVER_PATH = os.getcwd()
+    else:
+        print("platform not supported")
 
     BLACKBOARD_DOWNLOAD_PATH = os.path.join(CHROMEDRIVER_PATH, 'Downloads')
 
@@ -249,9 +253,11 @@ def selenium_get_courses():
 
     if sys.platform == "win32":  # Windows
         driver = webdriver.Chrome(os.path.join(CHROMEDRIVER_PATH, "boxdriver.exe"), chrome_options=chrome_options)
-    else:  # Mac
+    elif sys.platform == 'darwin':  # Mac
         print(os.path.join(CHROMEDRIVER_PATH, "boxdriver"))
         driver = webdriver.Chrome(os.path.join(CHROMEDRIVER_PATH, "boxdriver"), chrome_options=chrome_options)
+    elif sys.platform.startswith('linux'):
+        driver = webdriver.Chrome(os.path.join(CHROMEDRIVER_PATH, "boxdriver_linux"), chrome_options=chrome_options)
 
     driver.get("https://ntulearn.ntu.edu.sg/webapps/login/")
     wait()
@@ -1054,9 +1060,18 @@ def init_keyring_options():
     if sys.platform == 'win32': # Windows
         from keyring.backends import Windows
         keyring.set_keyring(Windows.WinVaultKeyring())
-    else: # Mac
+    elif sys.platform == 'darwin': # Mac
         from keyring.backends import OS_X
         keyring.set_keyring(OS_X.Keyring())
+    elif sys.platform.startswith('linux'):
+        from keyring.backends import SecretService
+        keyring.set_keyring(SecretService.Keyring())
+    else:
+        print('platform not supported yet')
+
+    #elif sys.platform.startswith('freebsd'):
+    # sys.platform == 'cygwin' || sys.platform == 'os2' || sys.platform == 'os2emx' || sys.platform == 'riscos' || sys.platform == 'atheos' 
+
 
     if keyring.get_password('system', 'username') == None or keyring.get_password('system', 'username') == None:
 
